@@ -1,12 +1,12 @@
-const { chromium, firefox, webkit } = require('playwright');
+import { chromium, firefox, webkit, type BrowserType } from '@playwright/test';
 
-const BROWSER_TYPES = {
+const BROWSER_TYPES: Record<string, BrowserType> = {
   chromium,
   firefox,
   webkit,
 };
 
-function getBrowserType(browserName = 'chromium') {
+export function getBrowserType(browserName = 'chromium'): BrowserType {
   const normalizedBrowserName = browserName.toLowerCase();
   const browserType = BROWSER_TYPES[normalizedBrowserName];
 
@@ -16,7 +16,3 @@ function getBrowserType(browserName = 'chromium') {
 
   return browserType;
 }
-
-module.exports = {
-  getBrowserType,
-};

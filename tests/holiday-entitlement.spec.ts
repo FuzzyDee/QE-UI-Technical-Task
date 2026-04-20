@@ -1,8 +1,32 @@
-const { test, expect } = require('@playwright/test');
-const { HolidayEntitlementStartPage } = require('../pages/holiday-entitlement-start.page');
-const { HolidayEntitlementFormPage } = require('../pages/holiday-entitlement-form.page');
-const { HolidayEntitlementResultPage } = require('../pages/holiday-entitlement-result.page');
-const { HOLIDAY_ENTITLEMENT, TEST_DATA } = require('../support/holiday-entitlement.constants');
+import { test, expect } from '@playwright/test';
+import { HolidayEntitlementStartPage } from '../pages/holiday-entitlement-start.page';
+import { HolidayEntitlementFormPage } from '../pages/holiday-entitlement-form.page';
+import { HolidayEntitlementResultPage } from '../pages/holiday-entitlement-result.page';
+import {
+  FULL_YEAR_BASIS_OPTIONS,
+  HOLIDAY_ENTITLEMENT,
+  TEST_DATA,
+  type FullYearBasisFlow,
+} from '../support/holiday-entitlement.constants';
+
+async function completeFullYearBasisFlow(formPage: HolidayEntitlementFormPage, flowData: FullYearBasisFlow): Promise<void> {
+  switch (flowData.basis) {
+    case 'days worked per week':
+      await formPage.submitDaysWorkedPerWeek(flowData.daysWorkedPerWeek);
+      return;
+    case 'hours worked per week':
+      await formPage.submitHoursWorkedPerWeek(flowData.hoursWorkedPerWeek, flowData.daysWorkedPerWeek);
+      return;
+    case 'annualised hours':
+      return;
+    case 'compressed hours':
+      await formPage.submitCompressedHours(flowData.hoursWorkedPerWeek, flowData.daysWorkedPerWeek);
+      return;
+    case 'shifts':
+      await formPage.submitShifts(flowData.hoursPerShift, flowData.shiftsPerPattern, flowData.daysInShiftPattern);
+      return;
+  }
+}
 
 test.describe('GOV.UK - Calculate your holiday entitlement', () => {
   test.beforeEach(async ({ page }) => {
@@ -117,7 +141,7 @@ test.describe('GOV.UK - Calculate your holiday entitlement', () => {
     }
   });
 
-  Object.keys(TEST_DATA.fullYearBasisFlows).forEach((basis) => {
+  FULL_YEAR_BASIS_OPTIONS.forEach((basis) => {
     test(`Scenario Outline: Full-year regular worker supports entitlement basis option (${basis})`, async ({ page }) => {
       const startPage = new HolidayEntitlementStartPage(page);
       const formPage = new HolidayEntitlementFormPage(page);
@@ -129,21 +153,7 @@ test.describe('GOV.UK - Calculate your holiday entitlement', () => {
       await formPage.chooseEntitlementBasis(basis);
       await formPage.chooseFullLeaveYear();
 
-      if (basis === 'days worked per week') {
-        await formPage.submitDaysWorkedPerWeek(flowData.daysWorkedPerWeek);
-      }
-
-      if (basis === 'hours worked per week') {
-        await formPage.submitHoursWorkedPerWeek(flowData.hoursWorkedPerWeek, flowData.daysWorkedPerWeek);
-      }
-
-      if (basis === 'compressed hours') {
-        await formPage.submitCompressedHours(flowData.hoursWorkedPerWeek, flowData.daysWorkedPerWeek);
-      }
-
-      if (basis === 'shifts') {
-        await formPage.submitShifts(flowData.hoursPerShift, flowData.shiftsPerPattern, flowData.daysInShiftPattern);
-      }
+      await completeFullYearBasisFlow(formPage, flowData);
 
       await expect(resultPage.getResultHeading(HOLIDAY_ENTITLEMENT.resultHeading)).toBeVisible();
 

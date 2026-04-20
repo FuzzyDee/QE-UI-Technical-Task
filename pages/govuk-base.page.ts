@@ -1,9 +1,9 @@
-class GovUkBasePage {
-  constructor(page) {
-    this.page = page;
-  }
+import { type Page } from '@playwright/test';
 
-  async acceptCookiesIfPrompted() {
+export class GovUkBasePage {
+  constructor(protected readonly page: Page) {}
+
+  async acceptCookiesIfPrompted(): Promise<void> {
     const acceptCookiesButton = this.page.getByRole('button', { name: 'Accept additional cookies' });
 
     if (await acceptCookiesButton.isVisible().catch(() => false)) {
@@ -11,23 +11,19 @@ class GovUkBasePage {
       await this.page
         .getByRole('button', { name: 'Hide cookie message' })
         .click({ timeout: 5_000 })
-        .catch(() => {});
+        .catch(() => undefined);
     }
   }
 
-  async clickContinue() {
+  async clickContinue(): Promise<void> {
     await this.page.getByRole('button', { name: 'Continue' }).click();
   }
 
-  async getInlineErrorText() {
+  async getInlineErrorText(): Promise<string> {
     return this.page.locator('.govuk-error-message').first().innerText();
   }
 
-  async getHeadingText() {
+  async getHeadingText(): Promise<string> {
     return this.page.locator('h1').first().innerText();
   }
 }
-
-module.exports = {
-  GovUkBasePage,
-};
