@@ -4,11 +4,27 @@
   "description": "Your task is to create a functional automated UI test suite using JavaScript, TypeScript, or a language of your choice. We would like you to use tools like Playwright, Cypress, or similar alternatives; kindly avoid using Selenium with Java. However should you opt to use Selenium with Java, we will inquire as to your reasoning's into why you did not opt for an alternative framework or language.",
   "main": "index.js",
   "scripts": {
-    "start": "npx http-server"
+    "start": "npx http-server",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:report": "playwright show-report",
+    "test:bdd": "cucumber-js",
+    "test:bdd:headed": "set PW_HEADLESS=false&& cucumber-js",
+    "test:bdd:report": "cucumber-js --format progress --format html:reports/bdd-report.html",
+    "test:bdd:parallel": "cucumber-js --parallel 4",
+    "test:bdd:chromium": "set PW_BROWSER=chromium&& cucumber-js",
+    "test:bdd:firefox": "set PW_BROWSER=firefox&& cucumber-js",
+    "test:bdd:webkit": "set PW_BROWSER=webkit&& cucumber-js",
+    "test:bdd:firefox:headed": "set PW_BROWSER=firefox&& set PW_HEADLESS=false&& cucumber-js",
+    "test:bdd:webkit:headed": "set PW_BROWSER=webkit&& set PW_HEADLESS=false&& cucumber-js"
   },
-  "author": "",
+  "author": "Dudley Cowan",
   "license": "ISC",
   "dependencies": {
     "http-server": "^14.1.1"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^11.3.0",
+    "@playwright/test": "^1.53.1"
   }
 }
